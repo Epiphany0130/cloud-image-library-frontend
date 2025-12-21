@@ -15,7 +15,20 @@
       <a-col flex="120px">
         <div class="user-login-status">
           <div v-if="loginUserStore.loginUser.id">
-            {{ loginUserStore.loginUser.userName ?? '无名' }}
+            <a-dropdown>
+              <ASpace>
+                <a-avatar :src="loginUserStore.loginUser.userAvatar" />
+                {{ loginUserStore.loginUser.userName ?? '无名' }}
+              </ASpace>
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item @click="doLogout">
+                    <LogoutOutlined />
+                    退出登录
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
           </div>
           <div v-else>
             <a-button type="primary" href="/user/login">登录</a-button>
@@ -28,9 +41,10 @@
 <script lang="ts" setup>
 import { h, ref } from 'vue'
 import { HomeOutlined } from '@ant-design/icons-vue'
-import { MenuProps } from 'ant-design-vue'
+import { MenuProps, message } from 'ant-design-vue'
 import { useRouter } from "vue-router";
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
+import { userLogout } from '@/api/userController.ts'
 const loginUserStore = useLoginUserStore()
 const router = useRouter();
 const current = ref<string[]>([])
@@ -45,6 +59,11 @@ const items = ref<MenuProps['items']>([
     key: '/about',
     label: '关于',
     title: '关于',
+  },
+  {
+    key: '/admin/userManage',
+    label: '用户管理',
+    title: '用户管理',
   },
   {
     key: 'others',
@@ -69,6 +88,22 @@ const doMenuClick = ({ key }: { key: string }) => {
 router.afterEach((to, from, next) => {
   current.value = [to.path];
 });
+
+
+// 用户注销
+const doLogout = async () => {
+  const res = await userLogout()
+  console.log(res)
+  if (res.data.code === 0) {
+    loginUserStore.setLoginUser({
+      userName: '未登录',
+    })
+    message.success('退出登录成功')
+    await router.push('/user/login')
+  } else {
+    message.error('退出登录失败，' + res.data.message)
+  }
+}
 
 
 </script>
