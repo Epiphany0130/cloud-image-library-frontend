@@ -10,7 +10,12 @@
         </router-link>
       </a-col>
       <a-col flex="auto">
-        <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="doMenuClick"/>
+        <a-menu
+          v-model:selectedKeys="current"
+          mode="horizontal"
+          :items="items"
+          @click="doMenuClick"
+        />
       </a-col>
       <a-col flex="120px">
         <div class="user-login-status">
@@ -39,16 +44,18 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { h, ref } from 'vue'
+import { computed, h, ref } from 'vue'
 import { HomeOutlined } from '@ant-design/icons-vue'
 import { MenuProps, message } from 'ant-design-vue'
-import { useRouter } from "vue-router";
+import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 import { userLogout } from '@/api/userController.ts'
 const loginUserStore = useLoginUserStore()
-const router = useRouter();
+const router = useRouter()
 const current = ref<string[]>([])
-const items = ref<MenuProps['items']>([
+
+// 未经过滤的菜单项
+const originItems = [
   {
     key: '/',
     icon: () => h(HomeOutlined),
@@ -74,21 +81,37 @@ const items = ref<MenuProps['items']>([
     ),
     title: '项目仓库',
   },
-])
+]
 
+// 过滤菜单项
+const filterMenus = (menus = [] as MenuProps['items']) => {
+  return menus?.filter((menu) => {
+    if (menu?.key?.startsWith('/admin')) {
+      const loginUser = loginUserStore.loginUser
+      if (!loginUser || loginUser.userRole !== 'admin') {
+        return false
+      }
+    }
+    return true
+  })
+}
+
+// 展示在菜单的路由数组
+const items = computed(() =>
+  filterMenus(originItems)
+)
 
 // 路由跳转事件
 const doMenuClick = ({ key }: { key: string }) => {
   router.push({
     path: key,
-  });
-};
+  })
+}
 
 // 监听路由变化，更新当前选中菜单
 router.afterEach((to, from, next) => {
-  current.value = [to.path];
-});
-
+  current.value = [to.path]
+})
 
 // 用户注销
 const doLogout = async () => {
@@ -104,8 +127,6 @@ const doLogout = async () => {
     message.error('退出登录失败，' + res.data.message)
   }
 }
-
-
 </script>
 
 <style scoped>

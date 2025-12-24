@@ -6,15 +6,15 @@
 
 <script setup lang="ts">
 import BasicLayout from '@/layouts/BasicLayout.vue'
-import { health } from '@/api/mainController.ts'
-import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
-
-const loginUserStore = useLoginUserStore()
-loginUserStore.fetchLoginUser()
-
-health().then((res => {
-  console.log(res);
-}))
+// import { health } from '@/api/mainController.ts'
+// import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
+//
+// const loginUserStore = useLoginUserStore()
+// loginUserStore.fetchLoginUser()
+//
+// health().then((res => {
+//   console.log(res);
+// }))
 </script>
 
 <style scoped>
