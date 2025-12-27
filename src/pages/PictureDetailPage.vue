@@ -51,23 +51,31 @@
             </a-descriptions-item>
           </a-descriptions>
         </a-card>
+        <div style="margin-bottom: 16px" />
+        <a-space wrap>
+          <a-button v-if="canEdit" type="default" @click="doEdit">
+            编辑
+            <template #icon>
+              <EditOutlined />
+            </template>
+          </a-button>
+          <a-button v-if="canEdit" danger @click="doDelete">
+            删除
+            <template #icon>
+              <DeleteOutlined />
+            </template>
+          </a-button>
+          <a-button type="primary" @click="doDownload">
+            免费下载
+            <template #icon>
+              <DownloadOutlined />
+            </template>
+          </a-button>
+        </a-space>
       </a-col>
     </a-row>
 
-    <a-space wrap>
-      <a-button v-if="canEdit" type="default" @click="doEdit">
-        编辑
-        <template #icon>
-          <EditOutlined />
-        </template>
-      </a-button>
-      <a-button v-if="canEdit" danger @click="doDelete">
-        删除
-        <template #icon>
-          <DeleteOutlined />
-        </template>
-      </a-button>
-    </a-space>
+
 
   </div>
 
@@ -78,7 +86,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { deletePicture, getPictureVoById } from '@/api/pictureController.ts'
 import { message } from 'ant-design-vue'
-import { formatSize } from '@/utils'
+import { downloadImage, formatSize } from '@/utils'
 import router from '@/router'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 
@@ -138,6 +146,11 @@ const doDelete = async () => {
   } else {
     message.error('删除失败')
   }
+}
+
+// 处理下载
+const doDownload = () => {
+  downloadImage(picture.value.url)
 }
 
 
